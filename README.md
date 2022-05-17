@@ -9,6 +9,7 @@ This database will be PSQL, and you will interact with it using [node-postgres](
 ## Add to:
 
 The database connection settings can be set using environment variables stored in a files. To succesfully connect to the two databases locally don't forget to add the file connection.js to your file system, then create two .env files for your project:
+
 1. .env.test
 2. .envdevelopment
 
