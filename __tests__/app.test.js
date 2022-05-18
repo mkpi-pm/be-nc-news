@@ -99,4 +99,12 @@ describe("PATCH /api/articles/:article_id ", () => {
         expect(body.msg).toBe("not found");
       });
   });
+  test("400, responds with an error message when passed a bad user ID", () => {
+    return request(app)
+      .get("/api/articles/notAnID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
 });
