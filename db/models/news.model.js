@@ -16,3 +16,19 @@ exports.fetchArticleById = (id) => {
       return rows[0];
     });
 };
+
+exports.updateArticleById = (id, newVote) => {
+  return db
+    .query(
+      `UPDATE articles
+       SET
+       votes = votes + $2
+       WHERE article_id = $1
+       RETURNING *;`,
+      [id, newVote]
+    )
+    .then((updatedVotesObj) => {
+      const updatedVotes = updatedVotesObj.rows[0];
+      return updatedVotes;
+    });
+};
