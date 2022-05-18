@@ -1,17 +1,19 @@
 const express = require("express");
 const app = express();
+const { getTopics } = require("./db/controllers/topics.controller");
+
 const {
-  getTopics,
   getArticleById,
-} = require("./db/controllers/news.controller");
+  patchArticleById,
+} = require("./db/controllers/articles.controller");
 
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.use((err, req, res, next) => {
-  console.log(err.code);
   if (err.code === "22P02") {
     res.status(400).send({ msg: "bad request" });
   } else next(err);
