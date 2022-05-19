@@ -21,8 +21,20 @@ exports.updateArticleById = (newVote, id) => {
        RETURNING *;`,
       [newVote, id]
     )
-    .then((updatedVotesObj) => {
-      const updatedVotes = updatedVotesObj.rows[0];
+    .then(({ rows }) => {
+      if (isNaN(rows[0].votes)) {
+        return Promise.reject({
+          status: 400,
+          msg: `${rows[0].votes} is not a number`,
+        });
+      }
+      if (!rows[0].votes) {
+        return Promise.reject({
+          status: 404,
+          msg: "not found",
+        });
+      }
+      const updatedVotes = rows[0];
       return updatedVotes;
     });
 };

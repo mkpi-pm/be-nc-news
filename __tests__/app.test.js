@@ -15,7 +15,7 @@ afterAll(() => {
 });
 
 describe("/api", () => {
-  describe("/api/topics", () => {
+  describe("GET /api/topics", () => {
     test("200: Returns an array of topic objects, each with slug and description properties", () => {
       return request(app)
         .get("/api/topics")
@@ -33,7 +33,7 @@ describe("/api", () => {
         });
     });
   });
-  describe("/api/articles/:article_id", () => {
+  describe("GET /api/articles/:article_id", () => {
     test("200: Returns an article object with properties of author, title, article_id, body, topic, created_at, votes", () => {
       return request(app)
         .get("/api/articles/1")
@@ -69,7 +69,7 @@ describe("/api", () => {
     });
   });
   describe("PATCH /api/articles/:article_id ", () => {
-    test("201: Returns an object with updated votes property by the provided number", () => {
+    test("200: Returns an object with updated votes property by the provided number", () => {
       const req = { inc_votes: 3 };
       const expected = {
         article_id: 1,
@@ -83,7 +83,7 @@ describe("/api", () => {
       return request(app)
         .patch("/api/articles/1")
         .send(req)
-        .expect(201)
+        .expect(200)
         .then(({ body }) => {
           const formattedResponse = convertTimestampToDate(body.updatedVotes);
           expect(formattedResponse).toEqual(expected);
@@ -106,7 +106,7 @@ describe("/api", () => {
         });
     });
   });
-  describe("/api/users", () => {
+  describe("GET /api/users", () => {
     test("200: Returns an array of user objects, each with username property", () => {
       return request(app)
         .get("/api/users")
