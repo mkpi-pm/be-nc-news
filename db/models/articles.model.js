@@ -1,8 +1,8 @@
 const db = require("../connection");
 
-exports.fetchArticleById = (id) => {
+exports.fetchArticleById = (article_id) => {
   return db
-    .query("SELECT * FROM articles WHERE article_id = $1", [id])
+    .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
     .then(({ rows }) => {
       if (!rows.length) {
         return Promise.reject({ status: 404, msg: "not found" });
@@ -11,7 +11,7 @@ exports.fetchArticleById = (id) => {
     });
 };
 
-exports.updateArticleById = (newVote, id) => {
+exports.updateArticleById = (inc_votes, article_id) => {
   return db
     .query(
       `UPDATE articles
@@ -19,22 +19,12 @@ exports.updateArticleById = (newVote, id) => {
        votes = votes + $1
        WHERE article_id = $2
        RETURNING *;`,
-      [newVote, id]
+      [inc_votes, article_id]
     )
     .then(({ rows }) => {
-      if (isNaN(rows[0].votes)) {
-        return Promise.reject({
-          status: 400,
-          msg: `${rows[0].votes} is not a number`,
-        });
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "not found" });
       }
-      if (!rows[0].votes) {
-        return Promise.reject({
-          status: 404,
-          msg: "not found",
-        });
-      }
-      const updatedVotes = rows[0];
-      return updatedVotes;
+      return rows[0];
     });
 };
