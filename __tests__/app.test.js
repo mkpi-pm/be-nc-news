@@ -15,7 +15,7 @@ afterAll(() => {
 });
 
 describe("/api", () => {
-  describe("/api/topics", () => {
+  describe("GET /api/topics", () => {
     test("200: Returns an array of topic objects, each with slug and description properties", () => {
       return request(app)
         .get("/api/topics")
@@ -33,22 +33,24 @@ describe("/api", () => {
         });
     });
   });
-  describe("/api/articles/:article_id", () => {
+  describe("GET /api/articles/:article_id", () => {
     test("200: Returns an article object with properties of author, title, article_id, body, topic, created_at, votes", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
           const formattedResponse = convertTimestampToDate(body.article);
-          expect(formattedResponse).toEqual({
-            article_id: 1,
-            title: "Living in the shadow of a great man",
-            topic: "mitch",
-            author: "butter_bridge",
-            body: "I find this existence challenging",
-            created_at: expect.any(Date),
-            votes: 100,
-          });
+          expect(formattedResponse).toEqual(
+            expect.objectContaining({
+              article_id: 1,
+              title: "Living in the shadow of a great man",
+              topic: "mitch",
+              author: "butter_bridge",
+              body: "I find this existence challenging",
+              created_at: expect.any(Date),
+              votes: 100,
+            })
+          );
         });
     });
     test("400: Returns the bed request message when passed an invalid article id", () => {
@@ -68,43 +70,91 @@ describe("/api", () => {
         });
     });
   });
-});
-
-describe("PATCH /api/articles/:article_id ", () => {
-  test("201: returns an object with updated votes property by the provided number", () => {
-    const req = { inc_votes: 3 };
-    const expected = {
-      article_id: 1,
-      title: "Living in the shadow of a great man",
-      topic: "mitch",
-      author: "butter_bridge",
-      body: "I find this existence challenging",
-      created_at: expect.any(Date),
-      votes: 103,
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(req)
-      .expect(201)
-      .then(({ body }) => {
-        const formattedResponse = convertTimestampToDate(body.updatedVotes);
-        expect(formattedResponse).toEqual(expected);
-      });
+  describe("PATCH /api/articles/:article_id ", () => {
+    test("200: Returns an object with updated votes property by the provided number", () => {
+      const req = { inc_votes: 56 };
+      const expected = {
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: expect.any(Date),
+        votes: 156,
+      };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(req)
+        .expect(200)
+        .then(({ body }) => {
+          const formattedResponse = convertTimestampToDate(body.updatedVotes);
+          expect(formattedResponse).toEqual(expected);
+        });
+    });
+    test("400: Responds with an error message when passed a bad user ID", () => {
+      const req = { inc_votes: 3 };
+      return request(app)
+        .patch("/api/articles/notAnID")
+        .send(req)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    test("400: Responds with an error message when passed no key", () => {
+      const req = {};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(req)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    test("400: Responds with an error message when inc_vote not an integer", () => {
+      const req = { inc_votes: "three" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(req)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    test("404: Returns the not found message when passed article id that doesn't exist", () => {
+      const req = { inc_votes: 3 };
+      return request(app)
+        .patch("/api/articles/99999999")
+        .send(req)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
   });
-  test("404: Returns the not found message when passed article id that doesn't exist", () => {
-    return request(app)
-      .get("/api/articles/99999999")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("not found");
-      });
-  });
-  test("400, responds with an error message when passed a bad user ID", () => {
-    return request(app)
-      .get("/api/articles/notAnID")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("bad request");
-      });
+  describe("GET /api/users", () => {
+    test("200: Returns an array of user objects, each with username property", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toEqual(
+              expect.objectContaining({
+                username: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("404: Responds with an error message when passed a route which is not valid", () => {
+      return request(app)
+        .get("/notARoute")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not a route");
+        });
+    });
   });
 });

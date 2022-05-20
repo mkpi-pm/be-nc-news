@@ -15,13 +15,14 @@ exports.getArticleById = (req, res, next) => {
       next(err);
     });
 };
+
 exports.patchArticleById = (req, res, next) => {
   const { inc_votes } = req.body;
   const { article_id } = req.params;
 
   updateArticleById(inc_votes, article_id)
     .then((updatedVotes) => {
-      res.status(201).send({ updatedVotes });
+      res.status(200).send({ updatedVotes });
     })
     .catch((err) => {
       next(err);
