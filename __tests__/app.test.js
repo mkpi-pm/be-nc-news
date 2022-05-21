@@ -33,6 +33,64 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe("GET /api/users", () => {
+  test("200: Returns an array of user objects, each with username property", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("404: Responds with an error message when passed a route which is not valid", () => {
+    return request(app)
+      .get("/notARoute")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not a route");
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: Returns an array of article objects, each with article_id, title, topic, author, created_at, votes, and comment_count (sorted by date in descending order)", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(12);
+        articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("404: Responds with an error message when passed a route which is not valid", () => {
+    return request(app)
+      .get("/notARoute")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not a route");
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id", () => {
   test("200: Returns an article object with properties of article_id, title, topic, author, body, created_at, votes", () => {
     return request(app)
@@ -80,32 +138,6 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("not found");
-      });
-  });
-});
-
-describe("GET /api/users", () => {
-  test("200: Returns an array of user objects, each with username property", () => {
-    return request(app)
-      .get("/api/users")
-      .expect(200)
-      .then(({ body: { users } }) => {
-        expect(users).toHaveLength(4);
-        users.forEach((user) => {
-          expect(user).toEqual(
-            expect.objectContaining({
-              username: expect.any(String),
-            })
-          );
-        });
-      });
-  });
-  test("404: Responds with an error message when passed a route which is not valid", () => {
-    return request(app)
-      .get("/notARoute")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("not a route");
       });
   });
 });
