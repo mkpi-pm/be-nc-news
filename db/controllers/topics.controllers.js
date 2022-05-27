@@ -1,5 +1,5 @@
 const topics = require("../data/test-data/topics");
-const { fetchTopics } = require("../models/topics.model");
+const { fetchTopics } = require("../models/topics.models");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()

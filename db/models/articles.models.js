@@ -1,35 +1,40 @@
 const db = require("../connection");
 
 exports.fetchArticles = (sort_by = "created_at", order = "DESC") => {
-  if (!["created_at"].includes(sort_by)) {
-    return Promise.reject({ status: 400, msg: "Invalid sort query" });
+  const validSortBy = ["article_id", "created_at"];
+
+  let queryStr = `SELECT
+  articles.article_id,
+  articles.title,
+  articles.topic,
+  articles.author,
+  articles.created_at,
+  articles.votes,
+  COUNT(comment_id)::INT AS comment_count
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  GROUP BY articles.article_id`;
+
+  const validOrder = ["DESC"];
+
+  if (validSortBy.includes(sort_by)) {
+    queryStr += ` ORDER BY ${sort_by}`;
+  } else {
+    return Promise.reject({ status: 400, msg: "bad request" });
   }
 
-  if (!["DESC"].includes(order)) {
-    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  if (validOrder.includes(order)) {
+    queryStr += ` ${order};`;
+  } else {
+    return Promise.reject({ status: 400, msg: "bad request" });
   }
 
-  return db
-    .query(
-      `SELECT
-      articles.article_id,
-      articles.title,
-      articles.topic,
-      articles.author,
-      articles.created_at,
-      articles.votes,
-      COUNT(comment_id)::INT AS comment_count
-      FROM articles
-      LEFT JOIN comments ON articles.article_id = comments.article_id
-      GROUP BY articles.article_id
-      ORDER BY ${sort_by} ${order};`
-    )
-    .then((response) => {
-      if (!response.rows.length) {
-        return Promise.reject({ status: 404, msg: "not found" });
-      }
-      return response.rows;
-    });
+  return db.query(queryStr).then((response) => {
+    if (!response.rows.length) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    }
+    return response.rows;
+  });
 };
 
 exports.fetchArticleById = (article_id) => {

@@ -2,7 +2,7 @@ const {
   fetchArticles,
   fetchArticleById,
   updateArticleById,
-} = require("../models/articles.model");
+} = require("../models/articles.models");
 
 exports.getArticles = (req, res, next) => {
   const { sort_by, order } = req.params;

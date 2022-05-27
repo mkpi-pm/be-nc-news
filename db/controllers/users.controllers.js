@@ -1,5 +1,5 @@
 const users = require("../data/test-data/users");
-const { fetchUsers } = require("../models/users.model");
+const { fetchUsers } = require("../models/users.models");
 
 exports.getUsers = (req, res, next) => {
   fetchUsers()
