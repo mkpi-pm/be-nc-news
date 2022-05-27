@@ -82,7 +82,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  xtest("400: Responds with an error message when passed a sort query which is not valid", () => {
+  test("400: Responds with an error message when passed a sort query which is not valid", () => {
     return request(app)
       .get("/api/articles?sort_by=bananas")
       .expect(400)
