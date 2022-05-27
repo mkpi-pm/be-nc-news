@@ -1,17 +1,17 @@
 process.env.NODE_ENV = "test";
 const seed = require("../db/seeds/seed");
-const testData = require("../db/data/test-data");
+const testData = require("../db/data/test-data/index");
 const db = require("../db/connection.js");
 const app = require("../app");
 const request = require("supertest");
 const { convertTimestampToDate } = require("../db/helpers/utils");
 
-beforeEach(() => {
-  return seed(testData);
-});
-
 afterAll(() => {
   return db.end();
+});
+
+beforeEach(() => {
+  return seed(testData);
 });
 
 describe("GET /api/topics", () => {
@@ -66,6 +66,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toHaveLength(12);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
         articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
@@ -79,6 +80,14 @@ describe("GET /api/articles", () => {
             })
           );
         });
+      });
+  });
+  test("400: Responds with an error message when passed a sort query which is not valid", () => {
+    return request(app)
+      .get("/api/articles?sort_by=bananas")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
       });
   });
   test("404: Responds with an error message when passed a route which is not valid", () => {
