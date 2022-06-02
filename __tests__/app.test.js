@@ -149,6 +149,26 @@ describe("GET /api/articles/:article_id", () => {
         expect(body.msg).toBe("not found");
       });
   });
+  test("200: Returns an array of comments for the given article_id of which each comment should have the following properties: comment_id, votes, created_at, author which is the username from the users table, and body", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(11);
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              article_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              created_at: expect.any(String),
+            })
+          );
+        });
+      });
+  });
 });
 
 describe("PATCH /api/articles/:article_id ", () => {
